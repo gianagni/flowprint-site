@@ -1,0 +1,103 @@
+---
+import type { DocPage } from '../data/site';
+interface Props {
+  prev?: DocPage;
+  next?: DocPage;
+}
+const { prev, next } = Astro.props;
+---
+
+<nav class="prevnext" aria-label="Previous and next pages">
+  {
+    prev ? (
+      <a class="pn pn--prev" href={prev.href} rel="prev">
+        <span class="eyebrow">← Previous</span>
+        <span class="t">{prev.title}</span>
+        <span class="s">{prev.summary}</span>
+      </a>
+    ) : (
+      <span />
+    )
+  }
+  {
+    next && (
+      <a class="pn pn--next" href={next.href} rel="next">
+        <span class="eyebrow">Next →</span>
+        <span class="t">{next.title}</span>
+        <span class="s">{next.summary}</span>
+      </a>
+    )
+  }
+</nav>
+
+<style>
+  .prevnext {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 56px;
+    padding-top: 28px;
+    border-top: 1px solid var(--rule);
+  }
+
+  .pn {
+    display: grid;
+    gap: 4px;
+    padding: 18px 20px;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    background: var(--paper-2);
+    text-decoration: none;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+  }
+
+  .pn:hover {
+    border-color: var(--ink);
+  }
+
+  .pn--next {
+    grid-column: 2;
+    text-align: right;
+    background: var(--plum);
+    color: var(--on-dark);
+    border-color: var(--plum);
+  }
+
+  .pn--next:hover {
+    background: var(--night);
+  }
+
+  .pn--next .eyebrow {
+    color: var(--lime);
+  }
+
+  .pn--next .s {
+    color: var(--on-dark-muted);
+  }
+
+  .eyebrow {
+    color: var(--muted);
+  }
+
+  .t {
+    font-size: 1.1rem;
+    font-weight: 650;
+    letter-spacing: -0.01em;
+  }
+
+  .s {
+    font-size: 0.86rem;
+    line-height: 1.45;
+    color: var(--muted);
+  }
+
+  @media (max-width: 599px) {
+    .prevnext {
+      grid-template-columns: 1fr;
+    }
+    .pn--next {
+      grid-column: 1;
+      grid-row: 1;
+    }
+  }
+</style>

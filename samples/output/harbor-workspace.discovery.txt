@@ -1,0 +1,22 @@
+============================================================
+Flowprint 0.1.0-alpha.5 — harbor-workspace  (discovery, 0.0s)
+============================================================
+
+  packages: 3
+  workspace patterns: apps/*
+
+## Supported applications
+  apps/admin   name=@harbor/admin
+    next: 14.2.0
+    app-router: no
+    pages-router: yes
+  apps/web   name=@harbor/web
+    next: 15.0.0
+    app-router: yes (apps/web/app)
+    pages-router: no
+
+hint:
+  Several supported apps were found — no app was guessed.
+  flowprint ~/code/harbor-workspace --app <name|path>   analyze one app in detail
+  flowprint <appDir>                       analyze an app dir directly
+============================================================

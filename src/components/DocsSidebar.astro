@@ -1,0 +1,116 @@
+---
+import { docs, docGroups, product } from '../data/site';
+
+interface Props {
+  current: string;
+}
+const { current } = Astro.props;
+---
+
+<aside class="docs-sidebar on-dark" aria-label="Documentation">
+  <nav aria-label="Documentation pages">
+    {
+      docGroups.map((group, gi) => (
+        <div class="group">
+          <p class="eyebrow">
+            {String(gi + 1).padStart(2, '0')} / {group}
+          </p>
+          <ul>
+            {docs
+              .filter((d) => d.group === group)
+              .map((d) => (
+                <li>
+                  <a href={d.href} aria-current={current === d.href ? 'page' : undefined}>
+                    {d.title}
+                  </a>
+                </li>
+              ))}
+          </ul>
+        </div>
+      ))
+    }
+  </nav>
+  <div class="sidebar-note">
+    <p class="eyebrow">Analysis model</p>
+    <p>Local, static reading of files. Does not run the analyzed app.</p>
+    <p class="ver">v{product.version}</p>
+  </div>
+</aside>
+
+<style>
+  .docs-sidebar {
+    position: sticky;
+    top: var(--header-h);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 32px;
+    height: calc(100dvh - var(--header-h));
+    padding: 24px 14px 20px;
+    overflow-y: auto;
+    background: var(--night);
+    color: var(--on-dark);
+    border-right: 1px solid var(--rule-dark);
+  }
+
+  .group + .group {
+    margin-top: 22px;
+  }
+
+  .eyebrow {
+    margin: 0 10px 8px;
+    color: var(--on-dark-muted);
+    font-size: 0.66rem;
+  }
+
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  a {
+    display: flex;
+    align-items: center;
+    min-height: 36px;
+    padding: 4px 10px;
+    border-radius: 2px;
+    font-size: 0.9rem;
+    text-decoration: none;
+    color: #d5d2e4;
+  }
+
+  a:hover {
+    color: #fff;
+    background: rgb(238 236 246 / 0.06);
+  }
+
+  a[aria-current='page'] {
+    background: rgb(217 255 118 / 0.1);
+    color: var(--lime);
+    font-weight: 600;
+    box-shadow: inset 2px 0 0 var(--lime);
+  }
+
+  .sidebar-note {
+    padding: 14px 10px 0;
+    border-top: 1px solid var(--rule-dark);
+    font-size: 0.78rem;
+    line-height: 1.5;
+    color: var(--on-dark-muted);
+  }
+
+  .sidebar-note .eyebrow {
+    margin: 0 0 6px;
+  }
+
+  .sidebar-note p {
+    margin: 0;
+  }
+
+  .sidebar-note .ver {
+    margin-top: 8px;
+    font-family: var(--mono);
+    font-size: 0.7rem;
+  }
+</style>

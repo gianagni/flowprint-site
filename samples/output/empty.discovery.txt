@@ -1,0 +1,18 @@
+============================================================
+Flowprint 0.1.0-alpha.5 — empty  (discovery, 0.0s)
+============================================================
+
+  packages: 0
+
+## Supported applications
+  (none detected — no Next.js router conventions found)
+  No app was analyzed.
+  Detection scope: Next.js App/Pages Router file conventions, plus
+  dependency scan for: NestJS, Fastify, Hono, Elysia, Express, GraphQL, Apollo Server, Vue, React Router.
+  Frameworks outside this list are not detected — "none detected"
+  means "none detected by these checks", not "no application exists".
+
+hint:
+  flowprint ~/code/empty --app <name|path>   analyze one app in detail
+  flowprint <appDir>                       analyze an app dir directly
+============================================================

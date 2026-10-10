@@ -1,0 +1,28 @@
+flowprint 0.1.0-alpha.5 — local-first codebase orientation
+
+Usage:
+  flowprint [path]                 Analyze <path> (default: current directory).
+                                   Exactly one supported app → analyzed directly.
+                                   Several supported apps → discovery listing;
+                                   pick one with --app (no app is guessed).
+                                   No supported app → honest notice, exit 0.
+  flowprint [path] --app <sel>     Analyze one app in detail. <sel> is a
+                                   package name, a repo-relative path
+                                   (e.g. apps/web), or "." for the root app.
+  flowprint [path] --full          Complete analysis report: every modeled
+                                   item, no truncation.
+  flowprint --version              Print version.
+  flowprint --help                 Show this help.
+
+Examples:
+  flowprint
+  flowprint ~/code/myrepo --app apps/web
+  flowprint ~/code/myrepo --full
+
+Notes:
+  - Detailed analysis scopes the expensive file walk + parse to ONE app
+    dir; cross-package imports resolve through the repo-wide package map.
+  - "No supported app" never means "no application exists": only a finite
+    list of framework checks is performed (see the notice).
+  - Hints refer to flags (e.g. "Re-run with --full"); npx does not install
+    the CLI into your PATH.

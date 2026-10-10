@@ -1,0 +1,43 @@
+---
+import '../styles/global.css';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import MobileNav from '../components/MobileNav.astro';
+import { noindex } from '../data/site';
+
+interface Props {
+  title: string;
+  description: string;
+  headerVariant?: 'overlay' | 'solid';
+  active?: 'product' | 'docs' | null;
+}
+
+const { title, description, headerVariant = 'solid', active = null } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    <meta name="theme-color" content="#12111e" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <slot name="head" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <SiteHeader variant={headerVariant} active={active} />
+    <MobileNav />
+    <slot />
+    <SiteFooter />
+    <script>
+      import '../scripts/site';
+    </script>
+  </body>
+</html>

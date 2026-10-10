@@ -1,0 +1,179 @@
+---
+import DocsLayout from '../../layouts/DocsLayout.astro';
+import Section from '../../components/Section.astro';
+import Notice from '../../components/Notice.astro';
+import CodeBlock from '../../components/CodeBlock.astro';
+import Terminal from '../../components/Terminal.astro';
+import Tag from '../../components/Tag.astro';
+import { product } from '../../data/site';
+import report from '../../../samples/output/field-notes.default.txt?raw';
+import discovery from '../../../samples/output/harbor-workspace.discovery.txt?raw';
+
+const toc = [
+  { id: 'run', label: 'Run it on a repository' },
+  { id: 'what-happens', label: 'What Flowprint does first' },
+  { id: 'choose-app', label: 'Choosing an app with --app' },
+  { id: 'first-report', label: 'Your first report' },
+  { id: 'reading-order', label: 'A reading order' },
+  { id: 'full', label: 'Going further with --full' },
+  { id: 'saving', label: 'Keeping a copy' },
+];
+
+const caption = `Real output of Flowprint ${product.version} (source commit ${product.sampleCommit}) on a synthetic fixture written for these docs.`;
+---
+
+<DocsLayout
+  title="First Analysis"
+  accent="Your first structural map."
+  description="Run Flowprint 0.1.0-alpha.5 on a Next.js repository: single apps, monorepo discovery, choosing an app with --app, and reading the first report."
+  lead="Run Flowprint from your install folder against a Next.js repository, choose an app if there are several, and read the report in the order it is printed."
+  toc={toc}
+>
+  <Section id="run" title="Run it on a repository" n={1}>
+    <p>
+      Always run Flowprint from the <code>flowprint-test</code> folder you created in the
+      <a href="/docs/quick-start">Quick Start</a>, and pass the path to the repository or app you want to analyze. Put the
+      path in quotes if it contains spaces.
+    </p>
+    <CodeBlock code={`npx flowprint "/path/to/repo"`} label="macOS · Linux" />
+    <CodeBlock code={`npx flowprint "C:\\Users\\you\\code\\repo"`} label="Windows" />
+    <ul>
+      <li>You do <strong>not</strong> need to install the analyzed repository's dependencies.</li>
+      <li>Flowprint only reads files. It does not start the app and does not modify the repository.</li>
+      <li>Analysis time depends on the size of the app.</li>
+    </ul>
+    <Notice title="Without a path, Flowprint analyzes the current folder">
+      <p>
+        <code>npx flowprint</code> on its own analyzes the current directory — which is <code>flowprint-test</code>, not a
+        Next.js app. You will get the “none detected” notice described below. Pass the repository path explicitly.
+      </p>
+    </Notice>
+  </Section>
+
+  <Section id="what-happens" title="What Flowprint does first" n={2}>
+    <p>Flowprint first looks for supported Next.js apps under the path you gave it. There are three outcomes:</p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th scope="col">Found</th><th scope="col">What happens</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>One supported app</td><td>It is analyzed directly and you get a report.</td></tr>
+          <tr>
+            <td>Several supported apps</td>
+            <td>
+              Flowprint lists them and shows how to pick one with <code>--app</code>. No app is guessed.
+            </td>
+          </tr>
+          <tr>
+            <td>No supported app</td>
+            <td>
+              An honest notice and exit code <code>0</code>. This means none of Flowprint's checks matched — not that the
+              repository contains no application.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      Running at the root of a monorepo is fine — that is how discovery works. You can also pass an app's own folder
+      directly. Here is discovery on a two-app pnpm workspace:
+    </p>
+    <Terminal output={discovery} command="npx flowprint ~/code/harbor-workspace" title="Discovery — two supported apps">
+      {caption} Absolute paths shortened to <code>~/code</code>.
+    </Terminal>
+  </Section>
+
+  <Section id="choose-app" title="Choosing an app with --app" n={3}>
+    <p>
+      <code>--app</code> selects one Next.js application in a workspace. It does not filter by router: an app using App
+      Router, Pages Router, or both is analyzed as a whole. The selector can be:
+    </p>
+    <ul>
+      <li>a <strong>package name</strong> from the app's <code>package.json</code>, e.g. <code>@harbor/web</code>;</li>
+      <li>a <strong>repo-relative path</strong>, e.g. <code>apps/web</code>;</li>
+      <li><code>.</code> for the app at the repository root.</li>
+    </ul>
+    <CodeBlock code={`npx flowprint "/path/to/repo" --app apps/web`} label="Select by path" />
+    <CodeBlock code={`npx flowprint "/path/to/repo" --app @harbor/web`} label="Select by package name" />
+    <p>
+      If the selector matches nothing, or matches more than one package, Flowprint prints the available options and exits
+      with code <code>2</code>. Details are in the <a href="/docs/cli-reference#app">CLI Reference</a>.
+    </p>
+  </Section>
+
+  <Section id="first-report" title="Your first report" n={4}>
+    <p>
+      This is the default report for <code>field-notes</code>, a single Next.js app that uses both App Router and Pages
+      Router, a dynamic segment, a server action module, and a middleware rewrite:
+    </p>
+    <Terminal output={report} command="npx flowprint ~/code/field-notes" title="Default report">
+      {caption}
+    </Terminal>
+    <p>The report always has the same shape: a header, then five sections.</p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th scope="col">Section</th><th scope="col">What it tells you</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Header</td><td>Version, analyzed app, time taken, and the detected framework with its reason.</td></tr>
+          <tr><td>Start here</td><td>Entry points worth opening first, each with why it matters.</td></tr>
+          <tr><td>Routes at a glance</td><td>Counts of route files by kind and router, dynamic segments, top-level paths.</td></tr>
+          <tr><td>Runtime blind spots</td><td>What cannot be settled statically, grouped by kind, each <Tag t="U" /> with a reason.</td></tr>
+          <tr><td>Coverage</td><td>Analysis statistics, what was skipped or unreadable, and the detection scope.</td></tr>
+          <tr><td>Next</td><td>A suggested follow-up, such as re-running with <code>--full</code>.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </Section>
+
+  <Section id="reading-order" title="A reading order" n={5}>
+    <ol class="steps">
+      <li>
+        <strong>Start here.</strong> Open these files first. In the example: the root layout, the root page, and
+        <code>middleware.ts</code>, which runs before routing.
+      </li>
+      <li>
+        <strong>Routes at a glance.</strong> Get the shape: five route files, mostly App Router, one Pages Router API
+        route, one dynamic segment (<code>[noteId]</code>). A dynamic segment in a file path is a structural fact.
+      </li>
+      <li>
+        <strong>Runtime blind spots.</strong> This is your list of things to verify by other means. Here: which concrete
+        note URLs exist, and what the middleware rewrite actually does at runtime.
+      </li>
+      <li>
+        <strong>Coverage.</strong> Check what was not analyzed before trusting a summary. An empty list of findings is
+        not a guarantee.
+      </li>
+      <li>
+        <strong>Next.</strong> Follow the hint — usually <code>--full</code> for the complete report.
+      </li>
+    </ol>
+    <p>
+      For the precise meaning of each label and common misreadings, see
+      <a href="/docs/reading-output">Reading the Output</a>.
+    </p>
+  </Section>
+
+  <Section id="full" title="Going further with --full" n={6}>
+    <CodeBlock code={`npx flowprint "/path/to/repo" --full`} label="Any shell" />
+    <p>
+      <code>--full</code> prints the complete report: every modeled route, finding, and procedure, with no truncation. In
+      addition to the default sections it lists all routes with their source files, server actions, aliases, tRPC
+      procedures, import probes, and the exact list of frameworks the detection checked. It does not add new kinds of
+      analysis — it shows everything that was modeled. <code>--full</code> can be combined with <code>--app</code>.
+    </p>
+  </Section>
+
+  <Section id="saving" title="Keeping a copy" n={7}>
+    <p>
+      Flowprint prints to standard output. To keep a report, use your shell's ordinary output redirection — this is a
+      shell feature, not a Flowprint option:
+    </p>
+    <CodeBlock code={`npx flowprint "/path/to/repo" > flowprint-report.txt`} label="Shell redirection" />
+    <p>
+      Flowprint has no built-in snapshot, diff, or JSON output in alpha.5.
+    </p>
+  </Section>
+</DocsLayout>

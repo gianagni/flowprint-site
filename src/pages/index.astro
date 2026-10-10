@@ -1,0 +1,621 @@
+---
+import { Picture } from 'astro:assets';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Terminal from '../components/Terminal.astro';
+import Tag from '../components/Tag.astro';
+import hero from '../assets/flowprint-hero-twilight.jpg';
+import report from '../../samples/output/field-notes.default.txt?raw';
+import { product } from '../data/site';
+---
+
+<BaseLayout
+  title="Flowprint — a structural starting map for unfamiliar Next.js codebases"
+  description="Flowprint is a private-alpha CLI that statically maps entry points, routes, and runtime blind spots in Next.js applications — and says what it could not determine."
+  headerVariant="overlay"
+  active="product"
+>
+  <main id="main" tabindex="-1">
+    <!-- 01 · Hero -->
+    <section class="hero on-dark" aria-labelledby="hero-title">
+      <Picture
+        src={hero}
+        formats={['avif', 'webp']}
+        widths={[640, 960, 1376]}
+        sizes="100vw"
+        quality={72}
+        alt=""
+        loading="eager"
+        fetchpriority="high"
+        class="hero__img"
+      />
+      <div class="hero__veil" aria-hidden="true"></div>
+
+      <div class="hero__meta" aria-hidden="true">
+        <span>Next.js structural orientation</span>
+        <span>v{product.version}</span>
+      </div>
+
+      <div class="hero__content">
+        <p class="hero__kicker eyebrow">Codebase orientation · Next.js</p>
+        <h1 id="hero-title" class="hero__title">
+          <span>Find your way</span>
+          <em>through the unknown.</em>
+        </h1>
+        <p class="hero__sub">
+          A structural starting map for unfamiliar Next.js codebases. See entry points, routes, and what static analysis
+          cannot determine.
+        </p>
+        <div class="hero__cta">
+          <a class="btn btn--lime" href="/docs">Explore the docs <span aria-hidden="true">→</span></a>
+          <a class="btn btn--ghost ext" href={product.repoUrl} target="_blank" rel="noopener noreferrer"
+            >View on GitHub<span class="sr-only"> (opens in a new tab)</span></a
+          >
+        </div>
+        <p class="hero__fine">
+          Reads files locally · Never runs the analyzed app · Private alpha, not on npm
+        </p>
+      </div>
+    </section>
+
+    <!-- 02 · Overview -->
+    <section id="overview" class="overview" aria-labelledby="overview-title">
+      <div class="wrap narrow">
+        <span class="folio-mark" aria-hidden="true">01</span>
+        <h2 id="overview-title" class="display">Start with structure.</h2>
+        <p class="overview__sub">Orientation before modification</p>
+        <p class="overview__body">
+          You have just inherited a Next.js repository you did not build. Before you change anything you need to know
+          where requests enter, how the routes are organized, and which parts only make sense at runtime. Flowprint reads
+          the files — it never starts the app — and prints a short structural map that separates what it resolved from
+          what it inferred and what it could not know.
+        </p>
+        <p class="overview__body">
+          It is built for developers stepping into codebases they did not write: freelancers, agency and consulting
+          teams, and engineers onboarding to an existing Next.js app.
+        </p>
+      </div>
+      <div class="wrap">
+        <ol class="folio" aria-label="What the default report contains">
+          <li><span>01</span> Start here</li>
+          <li><span>02</span> Routes at a glance</li>
+          <li><span>03</span> Runtime blind spots</li>
+          <li><span>04</span> Coverage</li>
+          <li><span>05</span> Next</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- 03 · Output -->
+    <section id="output" class="output on-dark" aria-labelledby="output-title">
+      <div class="wrap">
+        <div class="output__head">
+          <div>
+            <p class="eyebrow output__label">02 / The report</p>
+            <h2 id="output-title" class="output__title">
+              Three labels. <em>One honest boundary.</em>
+            </h2>
+          </div>
+          <p class="output__intro">
+            Every claim in a Flowprint report carries a label. Resolved and inferred structure is shown with its reason;
+            anything that depends on runtime behavior is marked uncertain instead of guessed. Coverage reports what was
+            not analyzed.
+          </p>
+        </div>
+
+        <Terminal
+          output={report}
+          command="npx flowprint ./field-notes"
+          title="field-notes — captured output"
+          meta={`flowprint ${product.version}`}
+        >
+          Real output of Flowprint {product.version} (source commit <code>{product.sampleCommit}</code>) for
+          <code>field-notes</code>, a small synthetic Next.js fixture written for this site. Timings vary with machine and
+          repository size.
+        </Terminal>
+
+        <ul class="legend" aria-label="Label legend">
+          <li><Tag t="R" /> <strong>Resolved</strong> — determined directly from files or code.</li>
+          <li><Tag t="I" /> <strong>Inferred</strong> — a reasoned conclusion; the reason is shown.</li>
+          <li><Tag t="U" /> <strong>Uncertain</strong> — depends on runtime behavior; not guessed.</li>
+          <li><span class="tag tag--c">Coverage</span> <strong>A section, not a label</strong> — what was skipped, failed, or not analyzed.</li>
+        </ul>
+
+        <a class="text-link" href="/docs/reading-output">Learn how to read the output <span aria-hidden="true">→</span></a>
+      </div>
+    </section>
+
+    <!-- 04 · Capabilities -->
+    <section id="capabilities" class="caps" aria-labelledby="caps-title">
+      <div class="wrap">
+        <p class="eyebrow caps__label">03 / What it maps</p>
+        <h2 id="caps-title" class="display display--left">Clarity before modification.</h2>
+        <p class="caps__intro">
+          Flowprint supports Next.js applications — App Router and Pages Router, including apps inside monorepos. It maps
+          three things, and is explicit about where each one stops.
+        </p>
+
+        <ol class="caps__list">
+          <li>
+            <span class="caps__n">01</span>
+            <h3>Entry points</h3>
+            <p>
+              Where to start reading: root layouts and pages, middleware and other request boundaries, startup hooks such
+              as <code>instrumentation.ts</code> — each with the reason it matters.
+            </p>
+          </li>
+          <li>
+            <span class="caps__n">02</span>
+            <h3>Route structure</h3>
+            <p>
+              Page and API route files across App Router and Pages Router, dynamic segments, route groups, and URLs mapped
+              by both routers at once. <code>--full</code> lists every modeled route.
+            </p>
+          </li>
+          <li>
+            <span class="caps__n">03</span>
+            <h3>Runtime blind spots</h3>
+            <p>
+              Things a file cannot tell you: concrete values of dynamic segments, middleware rewrites, hostname dispatch,
+              startup side effects. Each is reported as <Tag t="U" /> with a reason.
+            </p>
+          </li>
+        </ol>
+
+        <p class="caps__not">
+          <strong>Not in scope:</strong> running your app, verifying business logic, auditing security, or analyzing
+          frameworks other than Next.js. <a href="/docs/limitations">Read the limitations</a>.
+        </p>
+      </div>
+    </section>
+
+    <!-- 05 · Closing -->
+    <section class="closing on-dark" aria-labelledby="closing-title">
+      <div class="wrap narrow">
+        <h2 id="closing-title" class="closing__title">
+          Understand the structure.
+          <em>Know the limits.</em>
+        </h2>
+        <p class="closing__sub">
+          Flowprint {product.version} is in private alpha and distributed directly to invited testers. There is no
+          public package yet.
+        </p>
+        <div class="hero__cta">
+          <a class="btn btn--lime" href="/docs">Explore the docs <span aria-hidden="true">→</span></a>
+          <a class="btn btn--ghost ext" href={product.repoUrl} target="_blank" rel="noopener noreferrer"
+            >View on GitHub<span class="sr-only"> (opens in a new tab)</span></a
+          >
+        </div>
+      </div>
+    </section>
+  </main>
+</BaseLayout>
+
+<style>
+  .wrap {
+    width: min(1180px, 100%);
+    margin: 0 auto;
+    padding: 0 var(--gutter);
+  }
+
+  .narrow {
+    width: min(820px, 100%);
+    text-align: center;
+  }
+
+  main {
+    outline: none;
+  }
+
+  /* Hero */
+  .hero {
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    align-items: center;
+    min-height: min(100svh, 920px);
+    padding: calc(var(--header-h) + 48px) var(--gutter) 72px;
+    overflow: hidden;
+    color: var(--on-dark);
+    background: var(--plum);
+  }
+
+  .hero :global(.hero__img) {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 55%;
+  }
+
+  .hero__veil {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background:
+      radial-gradient(70% 55% at 50% 45%, rgb(18 17 30 / 0.5), rgb(18 17 30 / 0) 75%),
+      linear-gradient(180deg, rgb(18 17 30 / 0.55) 0%, rgb(30 28 54 / 0.25) 38%, rgb(18 17 30 / 0.82) 100%);
+  }
+
+  .hero__meta {
+    position: absolute;
+    top: calc(var(--header-h) + 4px);
+    left: var(--gutter);
+    right: var(--gutter);
+    display: flex;
+    justify-content: space-between;
+    padding-top: 10px;
+    border-top: 1px solid var(--rule-dark);
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--on-dark-muted);
+  }
+
+  .hero__content {
+    width: min(1240px, 100%);
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .hero__kicker {
+    display: inline-block;
+    margin: 0 0 22px;
+    padding: 5px 10px;
+    border: 1px solid var(--rule-dark);
+    background: rgb(18 17 30 / 0.45);
+    color: #dcd9ea;
+  }
+
+  .hero__title {
+    margin: 0;
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(3.2rem, 8.4vw, 7.6rem);
+    line-height: 0.92;
+    letter-spacing: -0.02em;
+    color: var(--lime);
+    text-wrap: balance;
+  }
+
+  .hero__title span,
+  .hero__title em {
+    display: block;
+  }
+
+  .hero__title em {
+    font-style: italic;
+  }
+
+  .hero__sub {
+    max-width: 38rem;
+    margin: 28px auto 0;
+    font-size: clamp(1.02rem, 1.6vw, 1.18rem);
+    line-height: 1.6;
+    color: #ece9f6;
+  }
+
+  .hero__cta {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 32px;
+  }
+
+  .hero__fine {
+    font-variant-ligatures: none;
+    margin: 26px 0 0;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.04em;
+    color: var(--on-dark-muted);
+  }
+
+  /* Overview */
+  .overview {
+    padding: clamp(72px, 10vw, 128px) 0 clamp(56px, 7vw, 88px);
+    background: var(--paper);
+  }
+
+  .folio-mark {
+    display: inline-grid;
+    place-items: center;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: var(--ink);
+    color: var(--paper);
+    font-weight: 700;
+    font-size: 1.25rem;
+    letter-spacing: -0.02em;
+  }
+
+  .display {
+    margin: 24px 0 0;
+    font-size: clamp(2.5rem, 6.4vw, 4.6rem);
+    font-weight: 750;
+    line-height: 1;
+    letter-spacing: -0.045em;
+    color: var(--ink);
+  }
+
+  .display--left {
+    margin-top: 12px;
+  }
+
+  .overview__sub {
+    margin: 14px 0 0;
+    font-size: 1.05rem;
+    font-weight: 500;
+    color: var(--ink-2);
+  }
+
+  .overview__body {
+    max-width: 62ch;
+    margin: 22px auto 0;
+    font-size: 1.06rem;
+    line-height: 1.75;
+    color: var(--muted);
+  }
+
+  .folio {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px 34px;
+    margin: 56px 0 0;
+    padding: 18px 0 0;
+    border-top: 1px solid var(--rule-strong);
+    list-style: none;
+    font-family: var(--mono);
+    font-size: 0.74rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+  }
+
+  .folio span {
+    margin-right: 6px;
+    color: var(--muted);
+  }
+
+  /* Output */
+  .output {
+    padding: clamp(64px, 9vw, 112px) 0;
+    background: var(--night);
+    color: var(--on-dark);
+  }
+
+  .output__head {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px 48px;
+    align-items: end;
+    margin-bottom: 28px;
+  }
+
+  .output__label {
+    margin: 0 0 12px;
+    color: var(--lime);
+  }
+
+  .output__title {
+    margin: 0;
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(2.2rem, 4.6vw, 3.4rem);
+    line-height: 1.02;
+    letter-spacing: -0.01em;
+    color: #fff;
+  }
+
+  .output__title em {
+    display: block;
+    color: var(--lime);
+  }
+
+  .output__intro {
+    margin: 0;
+    max-width: 46ch;
+    font-size: 1rem;
+    line-height: 1.65;
+    color: var(--on-dark-muted);
+  }
+
+  .output :global(figcaption code) {
+    font-size: 0.92em;
+    color: var(--on-dark);
+  }
+
+  .legend {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px 32px;
+    margin: 28px 0 32px;
+    padding: 20px 0 0;
+    border-top: 1px solid var(--rule-dark);
+    list-style: none;
+    font-size: 0.92rem;
+    line-height: 1.5;
+    color: var(--on-dark-muted);
+  }
+
+  .legend strong {
+    color: var(--on-dark);
+    font-weight: 600;
+  }
+
+  .legend .tag--c {
+    color: var(--on-dark);
+    border-color: var(--rule-dark);
+  }
+
+  .text-link {
+    display: inline-flex;
+    gap: 8px;
+    min-height: 44px;
+    align-items: center;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--lime);
+    text-decoration: none;
+    border-bottom: 1px solid rgb(217 255 118 / 0.4);
+  }
+
+  .text-link:hover {
+    border-bottom-color: var(--lime);
+  }
+
+  /* Capabilities */
+  .caps {
+    padding: clamp(64px, 9vw, 112px) 0;
+    background: var(--paper);
+  }
+
+  .caps__label {
+    margin: 0;
+    color: var(--muted);
+  }
+
+  .caps__intro {
+    max-width: 60ch;
+    margin: 18px 0 0;
+    font-size: 1.06rem;
+    line-height: 1.7;
+    color: var(--muted);
+  }
+
+  .caps__list {
+    margin: 48px 0 0;
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid var(--rule-strong);
+  }
+
+  .caps__list li {
+    display: grid;
+    grid-template-columns: 80px minmax(0, 0.9fr) minmax(0, 1.4fr);
+    gap: 12px 32px;
+    padding: 30px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .caps__n {
+    font-family: var(--mono);
+    font-size: 0.9rem;
+    color: var(--muted);
+    padding-top: 4px;
+  }
+
+  .caps__list h3 {
+    margin: 0;
+    font-size: 1.35rem;
+    font-weight: 650;
+    letter-spacing: -0.02em;
+  }
+
+  .caps__list p {
+    margin: 0;
+    line-height: 1.65;
+    color: var(--ink-2);
+  }
+
+  .caps code {
+    padding: 0.1em 0.32em;
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    background: var(--paper-2);
+    font-size: 0.86em;
+  }
+
+  .caps__not {
+    max-width: 70ch;
+    margin: 32px 0 0;
+    font-size: 0.98rem;
+    line-height: 1.65;
+    color: var(--muted);
+  }
+
+  .caps__not strong {
+    color: var(--ink);
+  }
+
+  .caps__not a {
+    color: var(--ink);
+    text-underline-offset: 3px;
+  }
+
+  /* Closing */
+  .closing {
+    padding: clamp(80px, 11vw, 136px) 0;
+    background:
+      radial-gradient(90% 120% at 50% 0%, rgb(85 84 160 / 0.5), transparent 65%),
+      linear-gradient(180deg, var(--plum), var(--night));
+    color: var(--on-dark);
+  }
+
+  .closing__title {
+    margin: 0;
+    font-size: clamp(2.3rem, 5.6vw, 4.2rem);
+    font-weight: 650;
+    line-height: 1.04;
+    letter-spacing: -0.04em;
+    color: #fff;
+  }
+
+  .closing__title em {
+    display: block;
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: 1.12em;
+    letter-spacing: -0.01em;
+    color: var(--lime);
+  }
+
+  .closing__sub {
+    max-width: 50ch;
+    margin: 22px auto 0;
+    line-height: 1.65;
+    color: var(--on-dark-muted);
+  }
+
+  @media (max-width: 859px) {
+    .output__head {
+      grid-template-columns: 1fr;
+    }
+    .caps__list li {
+      grid-template-columns: 56px minmax(0, 1fr);
+    }
+    .caps__list p {
+      grid-column: 2;
+    }
+  }
+
+  @media (max-width: 599px) {
+    .hero__meta span:first-child {
+      display: none;
+    }
+    .hero__meta {
+      justify-content: flex-end;
+    }
+    .legend {
+      grid-template-columns: 1fr;
+    }
+    .folio {
+      justify-content: flex-start;
+      flex-direction: column;
+      align-items: flex-start;
+      width: fit-content;
+      margin-inline: auto;
+    }
+    .hero__cta .btn {
+      flex: 1 1 100%;
+    }
+  }
+</style>

@@ -1,0 +1,82 @@
+---
+/**
+ * A captured Flowprint report. `output` must come from samples/output/
+ * (real CLI output) — never hand-written text.
+ */
+import { highlightReport } from '../lib/terminal';
+
+interface Props {
+  output: string;
+  command?: string;
+  title: string;
+  meta?: string;
+}
+
+const { output, command, title, meta } = Astro.props;
+const html = highlightReport(output);
+---
+
+<figure class="terminal">
+  <div class="code term">
+    <div class="code__bar">
+      <span class="code__label">{title}</span>
+      <span class="terminal__right">
+        {meta && <span class="terminal__meta">{meta}</span>}
+        {
+          command && (
+            <button class="copy-btn" type="button" data-copy={command} aria-label={`Copy command: ${command}`}>
+              <span data-copy-label>Copy command</span>
+            </button>
+          )
+        }
+      </span>
+    </div>
+    <pre tabindex="0">{command && <><span class="prompt">$ </span><span class="t-head">{command}</span>{'\n\n'}</>}<Fragment set:html={html} /></pre>
+  </div>
+  {Astro.slots.has('default') && (
+    <figcaption><slot /></figcaption>
+  )}
+</figure>
+
+<style>
+  .terminal {
+    margin: 1.5rem 0;
+    min-width: 0;
+  }
+
+  .terminal .code {
+    margin: 0;
+  }
+
+  .terminal pre {
+    font-size: 0.8rem;
+    line-height: 1.6;
+  }
+
+  .terminal__right {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .terminal__meta {
+    color: var(--on-dark-muted);
+  }
+
+  @media (max-width: 599px) {
+    .terminal__meta {
+      display: none;
+    }
+  }
+
+  figcaption {
+    margin-top: 10px;
+    font-size: 0.82rem;
+    line-height: 1.55;
+    color: var(--muted);
+  }
+
+  :global(.on-dark) figcaption {
+    color: var(--on-dark-muted);
+  }
+</style>

@@ -1,0 +1,40 @@
+============================================================
+Flowprint 0.1.0-alpha.5 — field-notes / (root)
+analyzed in 0.4s
+============================================================
+
+Framework  [R] nextjs-hybrid  (next 14.2.0)  — (root)
+  reason: `next` in package.json deps + router conventions present
+
+Start here
+  [R] app/layout.tsx — root App Router layout — wraps every route in the app
+  [R] app/page.tsx — root page — serves the app's base URL
+  [R] middleware.ts — request boundary — middleware.ts runs before routing
+
+Routes at a glance
+  5 route files: 3 page, 2 api, 0 metadata
+  by router: App Router 4, Pages Router 1
+  dynamic segments: 1 file(s) (e.g. [noteId])
+  top-level: /api (2), / (1), /about (1), /notes (1)
+  Server Actions: 1 file(s) inventoried
+
+Runtime blind spots
+  dynamic-segment-values — 1 occurrence(s)
+    [U] 1 route files contain dynamic segments; concrete URLs depend on runtime data — URL space unbounded
+      reason: concrete segment values unknowable statically
+  middleware-rewrite-behavior — 1 occurrence(s)
+    [U] middleware.ts references NextResponse.rewrite — whether rewrites remap URLs at runtime was not determined
+      reason: rewrite behavior is runtime logic
+
+Coverage
+  Analysis statistics:
+    import edges: 5  R=5  I=0  U=0
+    type-only-import-census: 1
+    unreadable directories: 0
+  Framework detection scope:
+    Frameworks outside this list are not detected — "none detected"
+    means "none detected by these checks", not "no application exists".
+
+Next
+  Re-run with --full for the complete analysis report.
+============================================================

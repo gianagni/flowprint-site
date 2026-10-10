@@ -1,0 +1,9 @@
+---
+/** A trust label rendered as text, e.g. [R]. Colour is reinforcement only. */
+interface Props {
+  t: 'R' | 'I' | 'U';
+}
+const { t } = Astro.props;
+---
+
+<span class={`tag tag--${t.toLowerCase()}`}>[{t}]</span>

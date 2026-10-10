@@ -1,0 +1,143 @@
+---
+import DocsLayout from '../../layouts/DocsLayout.astro';
+import Section from '../../components/Section.astro';
+import Notice from '../../components/Notice.astro';
+import Tag from '../../components/Tag.astro';
+import { product } from '../../data/site';
+
+const toc = [
+  { id: 'what-it-is', label: 'What Flowprint is' },
+  { id: 'start-here', label: 'Where to start' },
+  { id: 'labels', label: 'The labels at a glance' },
+  { id: 'reference', label: 'Reference' },
+  { id: 'status', label: 'Status of this release' },
+];
+---
+
+<DocsLayout
+  title="Documentation"
+  accent="Get oriented, then verify."
+  description="Flowprint documentation: what the CLI does, how to install the private alpha, run a first analysis, and read the output honestly."
+  lead="Flowprint is an experimental command-line tool. It reads a Next.js application and prints a structural map: where requests enter, how routes are organized, which parts depend on behavior that only happens at runtime, and what it did not analyze."
+  toc={toc}
+>
+  <Notice title="Private alpha" tone="alpha">
+    <p>
+      Flowprint {product.version} is distributed directly to invited testers as a tarball. It is not published to npm
+      and there is no GitHub release, so these docs contain no public install command. If you are a tester, start with
+      the <a href="/docs/quick-start">Quick Start</a>.
+    </p>
+  </Notice>
+
+  <Section id="what-it-is" title="What Flowprint is" n={1}>
+    <p>
+      Flowprint gives you a <strong>structural starting map</strong> of a Next.js codebase you did not build. It reads
+      files and static code — it does not start the app — and reports what it found with an explicit level of
+      confidence, so you can decide where to look before you change anything.
+    </p>
+    <div class="split">
+      <div>
+        <h3>What it is</h3>
+        <ul>
+          <li>A local CLI for Next.js apps: App Router and Pages Router, JavaScript or TypeScript.</li>
+          <li>Workspace-aware: it discovers Next.js apps inside monorepos and lets you pick one.</li>
+          <li>Explicit about uncertainty: runtime-dependent behavior is labeled, not guessed.</li>
+          <li>Read-only: it does not modify the analyzed repository or need its dependencies installed.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>What it is not</h3>
+        <ul>
+          <li>Not a runtime tool — it never executes the analyzed app's code.</li>
+          <li>Not a business-logic explainer or a security scanner.</li>
+          <li>Not a general JavaScript mapper — other frameworks' routes are not analyzed.</li>
+          <li>Not a hosted service, dashboard, or AI assistant.</li>
+        </ul>
+      </div>
+    </div>
+  </Section>
+
+  <Section id="start-here" title="Where to start" n={2}>
+    <p>Pick the task you are doing now. Each guide links to the next one.</p>
+    <div class="cards">
+      <a class="card card--dark" href="/docs/quick-start">
+        <span class="eyebrow">Install</span>
+        <span class="card__title">Quick Start</span>
+        <span class="card__body">Check Node.js, verify the tarball, and install it in a separate folder.</span>
+        <span class="card__go">Open guide →</span>
+      </a>
+      <a class="card" href="/docs/first-analysis">
+        <span class="eyebrow">Run</span>
+        <span class="card__title">First Analysis</span>
+        <span class="card__body">Point Flowprint at a repository, choose an app, and walk through the report.</span>
+        <span class="card__go">Open guide →</span>
+      </a>
+      <a class="card" href="/docs/reading-output">
+        <span class="eyebrow">Interpret</span>
+        <span class="card__title">Reading the Output</span>
+        <span class="card__body">What each label means — and the misreadings to avoid.</span>
+        <span class="card__go">Open guide →</span>
+      </a>
+    </div>
+  </Section>
+
+  <Section id="labels" title="The labels at a glance" n={3}>
+    <p>
+      Flowprint marks the claims it makes. Coverage is reported separately: it is a section of the report, not a fourth
+      label.
+    </p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th scope="col">Label</th><th scope="col">Meaning</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><Tag t="R" /> Resolved</td><td>Determined directly from files or code.</td></tr>
+          <tr><td><Tag t="I" /> Inferred</td><td>A reasoned conclusion. The reason is printed with it.</td></tr>
+          <tr>
+            <td><Tag t="U" /> Uncertain</td>
+            <td>Cannot be determined by reading the code, often because it depends on runtime behavior. Not guessed.</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag--c">Coverage</span></td>
+            <td>What was skipped, failed, or not analyzed, and how complete the analysis was.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p><a href="/docs/reading-output">Read the full explanation with an annotated report</a>.</p>
+  </Section>
+
+  <Section id="reference" title="Reference" n={4}>
+    <div class="cards">
+      <a class="card" href="/docs/cli-reference">
+        <span class="eyebrow">Syntax</span>
+        <span class="card__title">CLI Reference</span>
+        <span class="card__body">Every supported invocation, the two options, and exit codes.</span>
+        <span class="card__go">Open reference →</span>
+      </a>
+      <a class="card" href="/docs/limitations">
+        <span class="eyebrow">Boundaries</span>
+        <span class="card__title">Supported &amp; Limitations</span>
+        <span class="card__body">Supported scope, what has been tested, and known limitations.</span>
+        <span class="card__go">Open reference →</span>
+      </a>
+    </div>
+  </Section>
+
+  <Section id="status" title="Status of this release" n={5}>
+    <ul>
+      <li>This documentation describes Flowprint <code>{product.version}</code>.</li>
+      <li>Requires Node.js <code>{product.nodeEngines}</code>.</li>
+      <li>
+        Installation and basic CLI runs have been smoke-tested on Linux, macOS, and Windows. That shows the tool installs
+        and runs — not that it is useful for your work. The private alpha exists to find that out.
+      </li>
+      <li>
+        Source code: <a href={product.repoUrl} target="_blank" rel="noopener noreferrer"
+          >github.com/gianagni/flowprint<span class="sr-only"> (opens in a new tab)</span></a
+        >.
+      </li>
+    </ul>
+  </Section>
+</DocsLayout>

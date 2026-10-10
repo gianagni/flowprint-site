@@ -1,0 +1,170 @@
+---
+import { product } from '../data/site';
+
+interface Props {
+  variant?: 'overlay' | 'solid';
+  active?: 'product' | 'docs' | null;
+}
+
+const { variant = 'solid', active = null } = Astro.props;
+const onHome = Astro.url.pathname === '/';
+---
+
+<header class:list={['site-header', 'on-dark', `site-header--${variant}`]}>
+  <div class="site-header__inner">
+    <a class="brand" href="/" aria-label="Flowprint by noulfan. — home">
+      <span class="brand__name">flowprint</span>
+      <span class="brand__maker" aria-hidden="true">by {product.maker}</span>
+    </a>
+    <span class="badge badge--lime site-header__status">{product.status}</span>
+
+    <nav class="site-nav" aria-label="Main">
+      <ul>
+        <li>
+          <a href={onHome ? '#overview' : '/#overview'} aria-current={active === 'product' ? 'page' : undefined}
+            >Product</a
+          >
+        </li>
+        <li>
+          <a href="/docs" aria-current={active === 'docs' ? 'page' : undefined}>Documentation</a>
+        </li>
+        <li>
+          <a class="ext" href={product.repoUrl} target="_blank" rel="noopener noreferrer"
+            >GitHub<span class="sr-only"> (opens in a new tab)</span></a
+          >
+        </li>
+      </ul>
+    </nav>
+
+    <button
+      class="menu-btn"
+      type="button"
+      data-nav-open
+      aria-controls="site-drawer"
+      aria-expanded="false"
+      aria-haspopup="dialog"
+    >
+      <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true">
+        <path d="M2 5h16M2 10h16M2 15h16" stroke="currentColor" stroke-width="1.6" fill="none"></path>
+      </svg>
+      <span>Menu</span>
+    </button>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    height: var(--header-h);
+    color: var(--on-dark);
+  }
+
+  .site-header--solid {
+    background: var(--night);
+    border-bottom: 1px solid var(--rule-dark);
+  }
+
+  .site-header--overlay {
+    position: absolute;
+    inset: 0 0 auto 0;
+    background: linear-gradient(180deg, rgb(18 17 30 / 0.7), rgb(18 17 30 / 0));
+  }
+
+  .site-header__inner {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    height: 100%;
+    padding: 0 var(--gutter);
+  }
+
+  .brand {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 8px;
+    white-space: nowrap;
+    text-decoration: none;
+  }
+
+  .brand__name {
+    font-weight: 700;
+    font-size: 1.15rem;
+    letter-spacing: -0.03em;
+  }
+
+  .brand__maker {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 0.95rem;
+    color: var(--on-dark-muted);
+  }
+
+  .site-header__status {
+    margin-right: auto;
+  }
+
+  .site-nav ul {
+    display: flex;
+    gap: 4px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .site-nav a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    padding: 0 12px;
+    font-size: 0.88rem;
+    font-weight: 500;
+    text-decoration: none;
+    color: var(--on-dark-muted);
+    border-radius: 2px;
+  }
+
+  .site-nav a:hover {
+    color: var(--on-dark);
+  }
+
+  .site-nav a[aria-current='page'] {
+    color: var(--ink);
+    background: var(--lime);
+  }
+
+  .menu-btn {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    min-height: 40px;
+    padding: 0 12px;
+    border: 1px solid var(--rule-dark);
+    border-radius: 2px;
+    background: transparent;
+    color: var(--on-dark);
+    font: 600 0.72rem/1 var(--mono);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+
+  @media (max-width: 899px) {
+    .menu-btn {
+      display: inline-flex;
+    }
+    .site-nav {
+      display: none;
+    }
+  }
+
+  @media (max-width: 420px) {
+    .site-header__status {
+      display: none;
+    }
+    .brand {
+      margin-right: auto;
+    }
+  }
+</style>

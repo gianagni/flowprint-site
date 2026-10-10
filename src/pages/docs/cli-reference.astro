@@ -1,0 +1,181 @@
+---
+import DocsLayout from '../../layouts/DocsLayout.astro';
+import Section from '../../components/Section.astro';
+import Notice from '../../components/Notice.astro';
+import CodeBlock from '../../components/CodeBlock.astro';
+import { product } from '../../data/site';
+import help from '../../../samples/output/help.txt?raw';
+
+const toc = [
+  { id: 'synopsis', label: 'Synopsis' },
+  { id: 'npx', label: 'Running via npx' },
+  { id: 'path', label: 'The path argument' },
+  { id: 'app', label: '--app <sel>' },
+  { id: 'full', label: '--full' },
+  { id: 'version-help', label: '--version and --help' },
+  { id: 'exit-codes', label: 'Exit codes' },
+  { id: 'not-supported', label: 'Not in alpha.5' },
+  { id: 'help-text', label: 'Built-in help text' },
+];
+
+const synopsis = [
+  'flowprint [path]',
+  'flowprint [path] --full',
+  'flowprint [path] --app <sel>',
+  'flowprint --version',
+  'flowprint --help',
+].join('\n');
+---
+
+<DocsLayout
+  title="CLI Reference"
+  accent="Syntax, options, exit codes."
+  description="Flowprint 0.1.0-alpha.5 CLI reference: flowprint [path], --app <sel>, --full, --version, --help, and exit codes 0, 1 and 2."
+  lead="Every invocation Flowprint 0.1.0-alpha.5 supports. There are two options that change analysis, --app and --full, plus --version and --help."
+  toc={toc}
+>
+  <Section id="synopsis" title="Synopsis" n={1}>
+    <CodeBlock code={synopsis} label="Supported invocations" copy={false} />
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th scope="col">Invocation</th><th scope="col">Meaning</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>flowprint [path]</code></td>
+            <td>
+              Analyze <code>path</code> (default: current directory). One supported app → analyzed directly. Several →
+              discovery listing. None → honest notice.
+            </td>
+          </tr>
+          <tr>
+            <td><code>flowprint [path] --full</code></td>
+            <td>Complete report: every modeled item, no truncation.</td>
+          </tr>
+          <tr>
+            <td><code>flowprint [path] --app &lt;sel&gt;</code></td>
+            <td>Analyze one app in a workspace, selected by package name, repo-relative path, or <code>.</code>.</td>
+          </tr>
+          <tr><td><code>flowprint --version</code></td><td>Print the version.</td></tr>
+          <tr><td><code>flowprint --help</code></td><td>Print usage help.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      Options may appear before or after the path, and <code>--full</code> can be combined with <code>--app</code>.
+    </p>
+  </Section>
+
+  <Section id="npx" title="Running via npx" n={2}>
+    <p>
+      In the private alpha, Flowprint is installed into a separate folder (see <a href="/docs/quick-start">Quick Start</a>)
+      rather than globally, so it is not on your <code>PATH</code>. Run every command from that folder with
+      <code>npx</code>:
+    </p>
+    <CodeBlock code={`npx flowprint "/path/to/repo"`} label="Any shell" />
+    <p>
+      The help text and Flowprint's own hints write <code>flowprint …</code>; read that as <code>npx flowprint …</code>
+      for a local install.
+    </p>
+  </Section>
+
+  <Section id="path" title="The path argument" n={3}>
+    <p>
+      <code>[path]</code> is optional and may be relative or absolute. It must be a directory; otherwise Flowprint reports
+      <code>not a directory</code> and exits with <code>2</code>. Quote paths that contain spaces.
+    </p>
+    <ul>
+      <li>A repository root — Flowprint discovers supported apps inside it.</li>
+      <li>An app folder inside a monorepo — that app is analyzed directly.</li>
+      <li>Omitted — the current working directory is used.</li>
+    </ul>
+  </Section>
+
+  <Section id="app" title="--app <sel>" n={4}>
+    <p>
+      Selects <strong>one Next.js application</strong> in a workspace and analyzes it in detail. It does not restrict
+      analysis to the <code>app/</code> directory or to App Router — the selected app is analyzed with whichever routers it
+      uses.
+    </p>
+    <p><code>&lt;sel&gt;</code> is matched in this order:</p>
+    <ol>
+      <li>a package name, e.g. <code>@harbor/web</code>;</li>
+      <li>a repo-relative directory, e.g. <code>apps/web</code>;</li>
+      <li><code>.</code> for the repository root;</li>
+      <li>a unique folder name, e.g. <code>web</code>, as a fallback.</li>
+    </ol>
+    <CodeBlock code={`npx flowprint "/path/to/repo" --app apps/web`} label="Example" />
+    <p>
+      If nothing matches, or a name matches more than one package, Flowprint lists the options and exits with
+      <code>2</code>. <code>--app</code> without a value is also an invocation error.
+    </p>
+  </Section>
+
+  <Section id="full" title="--full" n={5}>
+    <p>
+      Prints the complete analysis report: every modeled route, finding, and procedure, with no truncation. On top of the
+      default sections it lists all routes with their source files, server actions, aliases, tRPC procedures, import
+      probes, and the frameworks the detection checked.
+    </p>
+    <CodeBlock code={`npx flowprint "/path/to/repo" --full`} label="Example" />
+    <p>
+      <code>--full</code> expands the modeled report; it is not an exhaustive component graph and does not add runtime
+      analysis.
+    </p>
+  </Section>
+
+  <Section id="version-help" title="--version and --help" n={6}>
+    <CodeBlock code="npx flowprint --version" label="Any shell" />
+    <CodeBlock code={`flowprint ${product.version}`} label="Output" copy={false} />
+    <p>
+      <code>--version</code> prints only the name and version. <code>--help</code> prints the usage text reproduced
+      <a href="#help-text">at the end of this page</a>. Only these long forms are documented for alpha.5.
+    </p>
+  </Section>
+
+  <Section id="exit-codes" title="Exit codes" n={7}>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th scope="col">Code</th><th scope="col">Meaning</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>0</code></td>
+            <td>
+              Success — including a discovery listing of several apps, and the explicit “no supported app” notice.
+            </td>
+          </tr>
+          <tr><td><code>1</code></td><td>Analysis or runtime failure, including a missing native parser binding.</td></tr>
+          <tr>
+            <td><code>2</code></td>
+            <td>Invalid invocation: unknown flag, extra argument, path that is not a directory, or an unresolvable <code>--app</code>.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Error messages are printed to standard error, for example:</p>
+    <CodeBlock
+      code={`flowprint: unknown flag "--json"\nRun \`flowprint --help\` for usage.`}
+      label="stderr · exit code 2"
+      copy={false}
+    />
+  </Section>
+
+  <Section id="not-supported" title="Not in alpha.5" n={8}>
+    <Notice title="These do not exist" tone="warn">
+      <ul>
+        <li>Subcommands such as <code>flowprint analyze</code>.</li>
+        <li>Machine-readable output: no <code>--json</code> or other output formats.</li>
+        <li>No <code>--verbose</code>, watch mode, config file, or snapshot/diff feature.</li>
+        <li>No cloud upload, hosted scan, or account.</li>
+      </ul>
+    </Notice>
+  </Section>
+
+  <Section id="help-text" title="Built-in help text" n={9}>
+    <p>Verbatim output of <code>flowprint --help</code> for {product.version}:</p>
+    <CodeBlock code={help} label="flowprint --help" copy={false} />
+  </Section>
+</DocsLayout>

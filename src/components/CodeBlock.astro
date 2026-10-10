@@ -1,0 +1,25 @@
+---
+/** A copyable code block. The Copy button copies exactly `code`. */
+interface Props {
+  code: string;
+  label?: string;
+  copy?: boolean;
+}
+
+const { code, label = 'Shell', copy = true } = Astro.props;
+const text = code.replace(/^\n+|\s+$/g, '');
+---
+
+<div class="code">
+  <div class="code__bar">
+    <span class="code__label">{label}</span>
+    {
+      copy && (
+        <button class="copy-btn" type="button" data-copy={text} aria-label={`Copy ${label} code`}>
+          <span data-copy-label>Copy</span>
+        </button>
+      )
+    }
+  </div>
+  <pre tabindex="0"><code>{text}</code></pre>
+</div>

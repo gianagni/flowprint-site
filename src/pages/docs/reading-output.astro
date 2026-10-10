@@ -1,0 +1,279 @@
+---
+import DocsLayout from '../../layouts/DocsLayout.astro';
+import Section from '../../components/Section.astro';
+import Terminal from '../../components/Terminal.astro';
+import Tag from '../../components/Tag.astro';
+import { product } from '../../data/site';
+import { splitReport, highlightReport, excerpt } from '../../lib/terminal';
+import report from '../../../samples/output/field-notes.default.txt?raw';
+import full from '../../../samples/output/field-notes.full.txt?raw';
+
+const toc = [
+  { id: 'static-vs-runtime', label: 'Static structure, not runtime truth' },
+  { id: 'labels', label: 'The three labels' },
+  { id: 'coverage', label: 'Coverage is separate' },
+  { id: 'annotated', label: 'An annotated report' },
+  { id: 'inferred-example', label: 'Where [I] appears' },
+  { id: 'misreadings', label: 'Common misreadings' },
+];
+
+const notes: Record<string, { title: string; body: string }> = {
+  Header: {
+    title: 'Header',
+    body: 'Version, the analyzed app (“(root)” here), and how long the analysis took on this machine.',
+  },
+  Framework: {
+    title: 'Framework',
+    body: 'Detected framework with its evidence. “nextjs-hybrid” means both App Router and Pages Router conventions were found.',
+  },
+  'Start here': {
+    title: 'Start here',
+    body: 'Files to open first. [R] because each is identified directly from Next.js file conventions — not because the code was checked to work.',
+  },
+  'Routes at a glance': {
+    title: 'Routes at a glance',
+    body: 'Counts by kind and router. The dynamic segment [noteId] is a structural fact; which concrete URLs exist is a separate, uncertain question.',
+  },
+  'Runtime blind spots': {
+    title: 'Runtime blind spots',
+    body: 'Grouped by kind. Each [U] states what could not be settled and why. A rewrite reference does not prove a rewrite happens — nor that it does not.',
+  },
+  Coverage: {
+    title: 'Coverage',
+    body: 'Statistics and scope: import edges by label, unreadable directories, and a reminder that framework detection is a finite list.',
+  },
+  Next: {
+    title: 'Next',
+    body: 'The suggested follow-up. Here: re-run with --full for every modeled item.',
+  },
+};
+
+const sections = splitReport(report).map((s) => ({ ...s, note: notes[s.heading] }));
+const missing = sections.filter((s) => !s.note).map((s) => s.heading);
+if (missing.length) throw new Error(`reading-output: no annotation for section(s): ${missing.join(', ')}`);
+
+const actions = excerpt(full, 'Server actions:', 'tRPC procedures:');
+---
+
+<DocsLayout
+  title="Reading the Output"
+  accent="What each line can — and cannot — tell you."
+  description="How to read a Flowprint report: the meaning of [R] resolved, [I] inferred, [U] uncertain, the separate Coverage section, and common misreadings."
+  lead="A Flowprint report is a map of modeled static structure. Each claim carries a label that tells you how it was established. This page explains the labels, walks through a real report, and lists the misreadings to avoid."
+  toc={toc}
+>
+  <Section id="static-vs-runtime" title="Static structure, not runtime truth" n={1}>
+    <p>
+      Flowprint reads files and static code. It never runs the analyzed application, so it cannot see environment
+      variables, database contents, request data, or what middleware does with a real request. The report describes the
+      structure Flowprint modeled — a starting point for reading the code, not a description of production behavior.
+    </p>
+    <p>
+      That is why every claim is labeled. The labels say how a claim was established, not how important it is.
+    </p>
+  </Section>
+
+  <Section id="labels" title="The three labels" n={2}>
+    <div class="labels">
+      <div class="label-row">
+        <div class="label-row__key"><Tag t="R" /><span class="label-row__name">Resolved</span></div>
+        <div>
+          <p>Determined directly from files or code — for example, a route file at a conventional path.</p>
+          <p class="not">
+            Not a runtime guarantee: it does not prove the code compiles, that the route is reachable in production, or
+            that it behaves correctly.
+          </p>
+        </div>
+      </div>
+      <div class="label-row">
+        <div class="label-row__key"><Tag t="I" /><span class="label-row__name">Inferred</span></div>
+        <div>
+          <p>A reasoned conclusion, usually from a framework convention. The reason is printed next to it.</p>
+          <p class="not">
+            Not an unconditional fact: read the reason and decide whether it holds for this codebase.
+          </p>
+        </div>
+      </div>
+      <div class="label-row">
+        <div class="label-row__key"><Tag t="U" /><span class="label-row__name">Uncertain</span></div>
+        <div>
+          <p>
+            Cannot be determined by reading the code, often because it depends on runtime behavior. Flowprint does not
+            guess these.
+          </p>
+          <p class="not">
+            Not a finding of a problem, and not a negative claim: an uncertain auth location does not mean there is no
+            auth.
+          </p>
+        </div>
+      </div>
+    </div>
+  </Section>
+
+  <Section id="coverage" title="Coverage is separate" n={3}>
+    <p>
+      <strong>Coverage</strong> is a section of the report, not a fourth confidence label. It describes what was skipped,
+      failed, or not analyzed, and how complete the analysis was — for example unreadable directories, import-edge
+      statistics, and the finite list of frameworks the detection checked. Coverage entries are not inferences about your
+      code; they are statements about the analysis itself.
+    </p>
+    <p>
+      Structural facts that might look uncertain — dynamic route segments, type-only imports — are reported as facts or
+      coverage statistics, not as <Tag t="U" />.
+    </p>
+  </Section>
+
+  <Section id="annotated" title="An annotated report" n={4}>
+    <p>
+      The default report for <code>field-notes</code>, a synthetic fixture with App Router and Pages Router routes, a
+      dynamic segment, and a middleware rewrite, split into its parts:
+    </p>
+    <ol class="annotated" aria-label="Report sections with annotations">
+      {
+        sections.map((s) => (
+          <li class="annotated__row">
+            <div class="code term annotated__code">
+              <pre tabindex="0"><Fragment set:html={highlightReport(s.body)} /></pre>
+            </div>
+            <div class="annotated__note">
+              <p class="eyebrow">{s.note!.title}</p>
+              <p>{s.note!.body}</p>
+            </div>
+          </li>
+        ))
+      }
+    </ol>
+    <p class="caption">
+      Real output of Flowprint {product.version} (source commit <code>{product.sampleCommit}</code>), with the separator
+      lines removed. Fixture source and capture script live in the site repository under <code>samples/</code>.
+    </p>
+  </Section>
+
+  <Section id="inferred-example" title="Where [I] appears" n={5}>
+    <p>
+      The default report above contains no <Tag t="I" /> — none of its claims needed one. Inferences show up in the
+      detail of <code>--full</code>. Here, a module marked <code>'use server'</code> is resolved, and its exported async
+      functions are inferred to be server actions by convention, with the reason printed:
+    </p>
+    <Terminal output={actions} title="Excerpt from --full" meta="Coverage → Server actions">
+      Excerpt of <code>npx flowprint ~/code/field-notes --full</code>, Flowprint {product.version}.
+    </Terminal>
+    <p>
+      Other places inferences can appear include URL mappings that depend on Next.js conventions (such as metadata files
+      or intercepting routes) and the import-edge statistics in Coverage (<code>R=… I=… U=…</code>).
+    </p>
+  </Section>
+
+  <Section id="misreadings" title="Common misreadings" n={6}>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th scope="col">Tempting reading</th><th scope="col">What the report actually supports</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>“The route list is every URL.”</td>
+            <td>
+              It lists route <em>files</em>. Dynamic segments, rewrites, and redirects mean real URLs can differ.
+            </td>
+          </tr>
+          <tr>
+            <td>“No other framework was found, so there is none.”</td>
+            <td>Detection checks a fixed list. Frameworks outside it are not detected and not reported.</td>
+          </tr>
+          <tr>
+            <td>“Auth location is uncertain, so the app has no auth.”</td>
+            <td>
+              <Tag t="U" /> means it could not be determined statically — nothing more. Check the code.
+            </td>
+          </tr>
+          <tr>
+            <td>“No blind spots, so it is safe.”</td>
+            <td>Flowprint is not a security tool. An empty section is not a guarantee of anything.</td>
+          </tr>
+          <tr>
+            <td>“Start here lists the important business logic.”</td>
+            <td>
+              Start here lists structural entry points. Flowprint does not identify business logic, query locations, or
+              “important” modules.
+            </td>
+          </tr>
+          <tr>
+            <td>“[R] means it works.”</td>
+            <td>[R] means it was read directly from files. It says nothing about runtime correctness.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      Next: the exact syntax in the <a href="/docs/cli-reference">CLI Reference</a>, or the boundaries in
+      <a href="/docs/limitations">Supported &amp; Limitations</a>.
+    </p>
+  </Section>
+</DocsLayout>
+
+<style>
+  .annotated {
+    display: grid;
+    gap: 10px;
+    margin: 1.25rem 0 0.75rem;
+    padding: 0;
+    list-style: none;
+  }
+
+  .annotated__row {
+    display: grid;
+    grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+    gap: 0;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: #faf8f2;
+  }
+
+  .annotated__row + .annotated__row {
+    margin-top: 0 !important;
+  }
+
+  .annotated__code {
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+    min-width: 0;
+  }
+
+  .annotated__code pre {
+    font-size: 0.76rem;
+    padding: 12px 14px;
+  }
+
+  .annotated__note {
+    padding: 14px 16px;
+    font-size: 0.92rem;
+    line-height: 1.55;
+  }
+
+  .annotated__note .eyebrow {
+    margin: 0 0 6px;
+    color: var(--muted);
+  }
+
+  .annotated__note p:last-child {
+    margin: 0;
+  }
+
+  .caption {
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+
+  @media (max-width: 759px) {
+    .annotated__row {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .annotated__note {
+      order: -1;
+      padding-bottom: 10px;
+    }
+  }
+</style>

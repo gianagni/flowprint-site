@@ -1,0 +1,152 @@
+---
+import DocsLayout from '../../layouts/DocsLayout.astro';
+import Section from '../../components/Section.astro';
+import Notice from '../../components/Notice.astro';
+import CodeBlock from '../../components/CodeBlock.astro';
+import { product } from '../../data/site';
+
+const toc = [
+  { id: 'before-you-start', label: 'Before you start' },
+  { id: 'get-the-file', label: 'Get the tarball' },
+  { id: 'verify', label: 'Verify the file' },
+  { id: 'install', label: 'Install in a separate folder' },
+  { id: 'check', label: 'Check that it works' },
+  { id: 'troubleshooting', label: 'If something fails' },
+  { id: 'remove', label: 'Removing it' },
+];
+---
+
+<DocsLayout
+  title="Quick Start"
+  accent="Install for the private alpha."
+  description="Install the Flowprint 0.1.0-alpha.5 private-alpha tarball: check Node.js, verify the SHA-256, install into a separate folder with npm or pnpm."
+  lead="Install the Flowprint tarball you received into its own folder — never inside the repository you want to analyze — and confirm that it runs. Takes a few minutes."
+  toc={toc}
+>
+  <Notice title="Closed test" tone="alpha">
+    <p>
+      Flowprint is only available to invited testers. There is no public download and no npm package. Please do not
+      share the file or forward it.
+    </p>
+  </Notice>
+
+  <Section id="before-you-start" title="Before you start" n={1}>
+    <ol class="steps">
+      <li>
+        <p><strong>Check your Node.js version.</strong></p>
+        <CodeBlock code="node --version" label="Any shell" />
+        <p>
+          It must satisfy <code>{product.nodeEngines}</code>: 20.19.0 or newer within 20.x, or 22.12.0 or newer.
+        </p>
+      </li>
+      <li>
+        <p>
+          <strong>Make sure you can reach the npm registry.</strong> Installing the tarball still downloads Flowprint's
+          dependencies — including a native parser binary for your platform — from the public npm registry. Offline
+          installation is not supported. Behind a corporate proxy, npm must already be configured for it.
+        </p>
+      </li>
+      <li>
+        <p>
+          <strong>Use npm or pnpm.</strong> Yarn Classic (v1) is not supported for installing this file.
+        </p>
+      </li>
+    </ol>
+    <Notice title="Do not install inside the repository you will analyze" tone="warn">
+      <p>
+        Use the separate folder described below, so the analyzed repository's <code>package.json</code> and lockfile stay
+        untouched. Flowprint does not need to live next to the code it reads.
+      </p>
+    </Notice>
+  </Section>
+
+  <Section id="get-the-file" title="Get the tarball" n={2}>
+    <p>
+      Your facilitator sends you <code>{product.tarball}</code> directly — by file share, email, or chat. It is not
+      downloadable from this site, npm, or GitHub. You do not need to clone the Flowprint repository.
+    </p>
+  </Section>
+
+  <Section id="verify" title="Verify the file" n={3}>
+    <p>
+      In the folder that contains the downloaded file, run the command for your system and compare the result with the
+      expected SHA-256 below.
+    </p>
+    <CodeBlock code={`sha256sum ${product.tarball}`} label="Linux" />
+    <CodeBlock code={`shasum -a 256 ${product.tarball}`} label="macOS" />
+    <CodeBlock code={`Get-FileHash .\\${product.tarball} -Algorithm SHA256`} label="Windows PowerShell" />
+    <p>Expected SHA-256 for <code>{product.tarball}</code>:</p>
+    <CodeBlock code={product.tarballSha256} label="SHA-256" />
+    <p>
+      PowerShell prints the same value in uppercase; the comparison is case-insensitive. If the value differs, stop and
+      tell your facilitator.
+    </p>
+    <Notice title="The checksum belongs to one exact build">
+      <p>
+        This value is only valid for the alpha.5 tarball listed here. If you receive a rebuilt tarball, it comes with a
+        new checksum — use that one.
+      </p>
+    </Notice>
+  </Section>
+
+  <Section id="install" title="Install in a separate folder" n={4}>
+    <p>
+      The commands below work the same in bash, zsh, Windows PowerShell, and cmd. Run them one line at a time. First
+      create a folder and move into it:
+    </p>
+    <CodeBlock code={`mkdir flowprint-test\ncd flowprint-test`} label="Any shell" />
+    <p>
+      Copy <code>{product.tarball}</code> into this <code>flowprint-test</code> folder, then install with
+      <strong>one</strong> of the following.
+    </p>
+    <h3>npm</h3>
+    <CodeBlock code={`npm init -y\nnpm install ./${product.tarball}`} label="npm" />
+    <h3>pnpm</h3>
+    <CodeBlock code={`pnpm init\npnpm add ./${product.tarball}`} label="pnpm" />
+  </Section>
+
+  <Section id="check" title="Check that it works" n={5}>
+    <p>Still inside <code>flowprint-test</code>:</p>
+    <CodeBlock code="npx flowprint --version" label="Any shell" />
+    <p>Expected output:</p>
+    <CodeBlock code={`flowprint ${product.version}`} label="Output" copy={false} />
+    <p>
+      Flowprint is installed locally in this folder, not on your <code>PATH</code>, so always run it as
+      <code>npx flowprint</code> from <code>flowprint-test</code>. The full option list is in the
+      <a href="/docs/cli-reference">CLI Reference</a>.
+    </p>
+    <Notice title="Taking part in a facilitated session?">
+      <p>
+        Please do not run Flowprint on any repository before your session. Your facilitator will tell you which
+        repository to use. Otherwise, continue with <a href="/docs/first-analysis">First Analysis</a>.
+      </p>
+    </Notice>
+  </Section>
+
+  <Section id="troubleshooting" title="If something fails" n={6}>
+    <ul>
+      <li>
+        <strong>npx asks to install a package.</strong> Answer <em>no</em>. It means you are not inside
+        <code>flowprint-test</code> or the install did not complete — Flowprint is not published to npm, so there is
+        nothing to download.
+      </li>
+      <li>
+        <strong>“parser native binding not found for this platform”.</strong> The native parser dependency did not
+        install. Delete <code>node_modules</code> and the lockfile in <code>flowprint-test</code> and install again with
+        registry access.
+      </li>
+      <li>
+        <strong>Yarn Classic error</strong> <code>Received malformed response from registry</code>: Yarn v1 is not
+        supported. Use npm or pnpm.
+      </li>
+      <li>
+        <strong>Anything else:</strong> copy the full error message and send it to your facilitator. Please do not spend
+        more than 10 minutes troubleshooting.
+      </li>
+    </ul>
+  </Section>
+
+  <Section id="remove" title="Removing it" n={7}>
+    <p>Delete the <code>flowprint-test</code> folder. Nothing else was installed.</p>
+  </Section>
+</DocsLayout>

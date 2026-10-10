@@ -1,0 +1,115 @@
+---
+export interface TocItem {
+  id: string;
+  label: string;
+}
+interface Props {
+  items: TocItem[];
+  variant: 'rail' | 'inline';
+}
+const { items, variant } = Astro.props;
+---
+
+{
+  variant === 'rail' ? (
+    <nav class="toc toc--rail" aria-label="On this page" data-toc>
+      <p class="eyebrow">On this page</p>
+      <ol>
+        {items.map((it, i) => (
+          <li>
+            <a href={`#${it.id}`}>
+              <span class="n">{String(i + 1).padStart(2, '0')}</span>
+              {it.label}
+            </a>
+          </li>
+        ))}
+      </ol>
+    </nav>
+  ) : (
+    <details class="toc toc--inline">
+      <summary>On this page · {items.length} sections</summary>
+      <nav aria-label="On this page (collapsible)" data-toc>
+        <ol>
+          {items.map((it, i) => (
+            <li>
+              <a href={`#${it.id}`}>
+                <span class="n">{String(i + 1).padStart(2, '0')}</span>
+                {it.label}
+              </a>
+            </li>
+          ))}
+        </ol>
+      </nav>
+    </details>
+  )
+}
+
+<style>
+  .toc ol {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .toc a {
+    display: flex;
+    gap: 10px;
+    padding: 5px 0 5px 10px;
+    border-left: 1px solid var(--rule);
+    font-size: 0.84rem;
+    line-height: 1.4;
+    color: var(--muted);
+    text-decoration: none;
+  }
+
+  .toc a:hover {
+    color: var(--ink);
+  }
+
+  .toc a[aria-current='true'] {
+    color: var(--ink);
+    font-weight: 600;
+    border-left: 2px solid var(--ink);
+    padding-left: 9px;
+  }
+
+  .n {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    padding-top: 0.15em;
+  }
+
+  .toc--rail {
+    position: sticky;
+    top: calc(var(--header-h) + 28px);
+  }
+
+  .toc--rail .eyebrow {
+    margin: 0 0 12px;
+    color: var(--muted);
+  }
+
+  .toc--inline {
+    margin: 0 0 28px;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    background: var(--paper-2);
+  }
+
+  .toc--inline summary {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 16px;
+    font-family: var(--mono);
+    font-size: 0.74rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+
+  .toc--inline nav {
+    padding: 0 16px 14px;
+  }
+</style>

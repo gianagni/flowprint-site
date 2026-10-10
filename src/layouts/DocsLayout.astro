@@ -1,0 +1,234 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import DocsSidebar from '../components/DocsSidebar.astro';
+import Toc, { type TocItem } from '../components/Toc.astro';
+import PrevNext from '../components/PrevNext.astro';
+import { docs, docNeighbours, normalizePath, product } from '../data/site';
+
+interface Props {
+  title: string;
+  /** Italic serif accent that follows the title. */
+  accent: string;
+  description: string;
+  lead: string;
+  toc: TocItem[];
+}
+
+const { title, accent, description, lead, toc } = Astro.props;
+const current = normalizePath(Astro.url.pathname);
+const page = docs.find((d) => d.href === current);
+const { prev, next } = docNeighbours(current);
+const isOverview = current === '/docs';
+---
+
+<BaseLayout title={`${title} — Flowprint Docs`} description={description} active="docs">
+  <div class="docs">
+    <DocsSidebar current={current} />
+    <main id="main" class="docs-main" tabindex="-1">
+      <header class="doc-hero on-dark">
+        <nav aria-label="Breadcrumb" class="crumbs">
+          <ol>
+            {
+              isOverview ? (
+                <li>
+                  <a href="/docs" aria-current="page">Documentation</a>
+                </li>
+              ) : (
+                <>
+                  <li>
+                    <a href="/docs">Documentation</a>
+                  </li>
+                  <li aria-hidden="true" class="sep">/</li>
+                  <li class="grp">{page?.group}</li>
+                  <li aria-hidden="true" class="sep">/</li>
+                  <li>
+                    <a href={current} aria-current="page">{title}</a>
+                  </li>
+                </>
+              )
+            }
+          </ol>
+        </nav>
+        <h1>
+          {title}
+          <span class="accent">{accent}</span>
+        </h1>
+        <p class="lead">{lead}</p>
+        <dl class="meta">
+          <div><dt>Version</dt><dd>{product.version}</dd></div>
+          <div><dt>Status</dt><dd>{product.status}</dd></div>
+          <div><dt>Node.js</dt><dd>{product.nodeEngines}</dd></div>
+          <div><dt>Scope</dt><dd>Next.js App &amp; Pages Router</dd></div>
+        </dl>
+      </header>
+
+      <div class="doc-body">
+        <article class="prose">
+          <div class="toc-inline"><Toc items={toc} variant="inline" /></div>
+          <slot />
+          <PrevNext prev={prev} next={next} />
+        </article>
+        <div class="toc-rail"><Toc items={toc} variant="rail" /></div>
+      </div>
+    </main>
+  </div>
+</BaseLayout>
+
+<style>
+  .docs {
+    display: grid;
+    grid-template-columns: 256px minmax(0, 1fr);
+    min-height: calc(100dvh - var(--header-h));
+  }
+
+  .docs-main {
+    min-width: 0;
+    outline: none;
+  }
+
+  .doc-hero {
+    position: relative;
+    padding: 36px clamp(20px, 5vw, 64px) 32px;
+    color: var(--on-dark);
+    background:
+      radial-gradient(120% 140% at 85% 0%, rgb(85 84 160 / 0.55), transparent 60%),
+      radial-gradient(80% 120% at 0% 100%, rgb(85 84 160 / 0.25), transparent 60%),
+      linear-gradient(180deg, var(--plum), #191731);
+    border-bottom: 1px solid var(--rule-dark);
+  }
+
+  .crumbs ol {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 0 0 18px;
+    padding: 0;
+    list-style: none;
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--on-dark-muted);
+  }
+
+  .crumbs a {
+    color: var(--on-dark-muted);
+    text-decoration: none;
+  }
+
+  .crumbs a:hover {
+    color: var(--on-dark);
+    text-decoration: underline;
+  }
+
+  .crumbs a[aria-current='page'] {
+    color: var(--lime);
+  }
+
+  .sep {
+    opacity: 0.5;
+  }
+
+  h1 {
+    max-width: 30ch;
+    margin: 0;
+    font-size: clamp(2.1rem, 4.4vw, 3.3rem);
+    font-weight: 650;
+    line-height: 1.04;
+    letter-spacing: -0.035em;
+  }
+
+  .accent {
+    display: block;
+    margin-top: 4px;
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    color: var(--lime);
+  }
+
+  .lead {
+    max-width: 62ch;
+    margin: 18px 0 0;
+    font-size: 1.08rem;
+    line-height: 1.6;
+    color: #dcd9ea;
+  }
+
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 32px;
+    margin: 26px 0 0;
+    padding-top: 16px;
+    border-top: 1px solid var(--rule-dark);
+  }
+
+  .meta dt {
+    font-family: var(--mono);
+    font-size: 0.64rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--on-dark-muted);
+  }
+
+  .meta dd,
+  .meta dt,
+  .crumbs {
+    font-variant-ligatures: none;
+    font-feature-settings: 'liga' 0, 'calt' 0;
+  }
+
+  .meta dd {
+    margin: 2px 0 0;
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    color: var(--on-dark);
+  }
+
+  .doc-body {
+    display: grid;
+    grid-template-columns: minmax(0, 46rem) 210px;
+    justify-content: space-between;
+    gap: 48px;
+    padding: 44px clamp(20px, 5vw, 64px) 72px;
+  }
+
+  .toc-inline {
+    display: none;
+  }
+
+  @media (max-width: 1199px) {
+    .doc-body {
+      grid-template-columns: minmax(0, 46rem);
+    }
+    .toc-rail {
+      display: none;
+    }
+    .toc-inline {
+      display: block;
+    }
+  }
+
+  @media (max-width: 899px) {
+    .docs {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .docs > :global(.docs-sidebar) {
+      display: none;
+    }
+    .doc-hero {
+      padding-top: 26px;
+    }
+    .doc-body {
+      padding-top: 28px;
+    }
+  }
+
+  @media (max-width: 599px) {
+    .meta div:nth-child(n + 3) {
+      display: none;
+    }
+  }
+</style>

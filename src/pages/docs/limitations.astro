@@ -1,0 +1,172 @@
+---
+import DocsLayout from '../../layouts/DocsLayout.astro';
+import Section from '../../components/Section.astro';
+import Notice from '../../components/Notice.astro';
+import { product } from '../../data/site';
+
+const toc = [
+  { id: 'supported', label: 'What is supported' },
+  { id: 'not-analyzed', label: 'What is not analyzed' },
+  { id: 'does-not-do', label: 'What Flowprint does not do' },
+  { id: 'tested', label: 'What has been tested' },
+  { id: 'install-limits', label: 'Installation limitations' },
+  { id: 'distribution', label: 'Distribution status' },
+];
+
+const matrix = [
+  { os: 'Linux', arch: 'x64' },
+  { os: 'macOS', arch: 'arm64' },
+  { os: 'Windows', arch: 'x64' },
+];
+---
+
+<DocsLayout
+  title="Supported & Limitations"
+  accent="Where the map ends."
+  description="What Flowprint 0.1.0-alpha.5 supports, what it does not analyze or do, what has been tested, and known installation limitations."
+  lead="Flowprint is deliberately narrow. This page states what it supports, what it does not do, and what the alpha.5 testing does and does not show — so you do not over-trust the output."
+  toc={toc}
+>
+  <Section id="supported" title="What is supported" n={1}>
+    <ul>
+      <li>
+        <strong>Next.js applications only:</strong> App Router and Pages Router, written in JavaScript or TypeScript.
+      </li>
+      <li>
+        <strong>Monorepos and workspaces:</strong> Flowprint discovers Next.js apps inside a repository, lists them, and
+        analyzes the one you select with <code>--app</code>.
+      </li>
+      <li>
+        Support means <em>within the modeled scope</em>: route files, entry points, and the patterns described in
+        <a href="/docs/reading-output">Reading the Output</a>. No blanket compatibility with every Next.js version or
+        feature is claimed.
+      </li>
+    </ul>
+  </Section>
+
+  <Section id="not-analyzed" title="What is not analyzed" n={2}>
+    <ul>
+      <li>
+        Route structure of other frameworks — Express, Hono, NestJS, Remix, SvelteKit and others — is
+        <strong>not</strong> analyzed.
+      </li>
+      <li>
+        Framework detection checks a fixed list, which <code>--full</code> prints. In alpha.5 the dependency scan checks
+        NestJS, Fastify, Hono, Elysia, Express, GraphQL, Apollo Server and Vue, and unsupported-app detection also checks
+        React Router. Frameworks outside this list are not detected and not reported.
+      </li>
+      <li>
+        An empty result means “none of the checked frameworks were found” — not “no other frameworks exist”.
+      </li>
+    </ul>
+  </Section>
+
+  <Section id="does-not-do" title="What Flowprint does not do" n={3}>
+    <div class="split">
+      <div>
+        <h3>Does not</h3>
+        <ul>
+          <li>execute the analyzed app's code or start its server;</li>
+          <li>determine runtime behavior — middleware rewrites, hostname- or environment-dependent logic and auth wrappers are reported as uncertain;</li>
+          <li>identify business logic, query locations, or “important” modules;</li>
+          <li>detect security vulnerabilities;</li>
+          <li>modify the analyzed repository.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Does</h3>
+        <ul>
+          <li>read files and static code locally on your machine;</li>
+          <li>work without the analyzed repository's dependencies installed;</li>
+          <li>label each claim [R], [I] or [U];</li>
+          <li>report what was skipped, failed, or not analyzed under Coverage.</li>
+        </ul>
+      </div>
+    </div>
+    <p>
+      Flowprint itself runs on Node.js. What it never runs is the code of the application it analyzes.
+    </p>
+  </Section>
+
+  <Section id="tested" title="What has been tested" n={4}>
+    <p>
+      Installing the tarball and running the CLI was smoke-tested in CI: three platforms × three Node.js versions × two
+      package managers, 18 of 18 passing.
+    </p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">OS</th><th scope="col">Arch</th><th scope="col">Node.js</th><th scope="col">npm</th><th scope="col">pnpm</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            matrix.map((m) => (
+              <tr>
+                <td>{m.os}</td>
+                <td>{m.arch}</td>
+                <td>20.19.0, 22.12.0, 24</td>
+                <td>Pass</td>
+                <td>Pass</td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+    <p>
+      The Quick Start commands were additionally checked in Windows PowerShell 5.1 and PowerShell 7.
+    </p>
+    <Notice title="What this does not show">
+      <p>
+        The matrix shows that the tarball installs and the CLI runs on these platforms. It says nothing about whether
+        Flowprint helps developers — that is what the private alpha is testing. Other Node.js versions inside the engines
+        range (<code>{product.nodeEngines}</code>) are allowed but were not individually tested.
+      </p>
+    </Notice>
+  </Section>
+
+  <Section id="install-limits" title="Installation limitations" n={5}>
+    <ul>
+      <li>
+        <strong>Registry access required.</strong> Installing the tarball downloads dependencies, including the
+        platform-specific native parser binding, from the npm registry. Offline installation is not supported. Analysis
+        itself runs locally.
+      </li>
+      <li>
+        <strong>Yarn Classic (v1) is unsupported.</strong> Installing fails with
+        <code>Received malformed response from registry</code> for the optional native binding. Yarn modern (berry) has
+        not been tested.
+      </li>
+      <li>
+        <strong>Native binding.</strong> If no prebuilt parser binding exists for your platform, Flowprint stops with a
+        clear message and exit code <code>1</code>.
+      </li>
+      <li>
+        <strong>Node.js below the engines range</strong> — 20.x before 20.19.0, 22.x before 22.12.0 — is outside the
+        contract.
+      </li>
+      <li><strong>Installing from a remote URL</strong> has not been tested.</li>
+    </ul>
+  </Section>
+
+  <Section id="distribution" title="Distribution status" n={6}>
+    <ul>
+      <li>
+        <code>{product.tarball}</code> is sent directly to invited testers with its SHA-256. If the tarball is rebuilt, it
+        gets a new checksum.
+      </li>
+      <li>Not published to npm, and no GitHub release — the package name and branding are not final.</li>
+      <li>
+        The source is on <a href={product.repoUrl} target="_blank" rel="noopener noreferrer"
+          >GitHub<span class="sr-only"> (opens in a new tab)</span></a
+        >. This website has no analyzer and never receives your code.
+      </li>
+    </ul>
+    <p>
+      Ready to try it? Continue with <a href="/docs/first-analysis">First Analysis</a>, or go back to the
+      <a href="/docs">documentation overview</a>.
+    </p>
+  </Section>
+</DocsLayout>
